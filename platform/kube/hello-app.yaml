@@ -1,0 +1,106 @@
+# ============================================
+# ConfigMap - Custom HTML Page
+# ============================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hello-app-html
+  namespace: default
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Hello Dhruv Mavani!!</title>
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container {
+          text-align: center;
+          padding: 60px 80px;
+          background: rgba(255, 255, 255, 0.95);
+          border-radius: 20px;
+          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+          font-size: 3.5rem;
+          background: linear-gradient(135deg, #667eea, #764ba2);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          margin-bottom: 20px;
+        }
+        p {
+          color: #666;
+          font-size: 1.2rem;
+        }
+        .emoji { font-size: 4rem; margin-bottom: 20px; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="emoji">👋</div>
+        <h1>Hello Dhruv Mavani!!</h1>
+        <p>NGINX Gateway Fabric is working! 🚀</p>
+      </div>
+    </body>
+    </html>
+
+---
+# ============================================
+# Deployment - NGINX with custom HTML
+# ============================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-app
+  namespace: default
+  labels:
+    app: hello-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hello-app
+  template:
+    metadata:
+      labels:
+        app: hello-app
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: html
+              mountPath: /usr/share/nginx/html
+      volumes:
+        - name: html
+          configMap:
+            name: hello-app-html
+
+---
+# ============================================
+# Service
+# ============================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-app-service
+  namespace: default
+spec:
+  selector:
+    app: hello-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
