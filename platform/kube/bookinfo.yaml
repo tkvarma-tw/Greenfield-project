@@ -30,6 +30,11 @@
 # Details service
 ##################################################################################################
 apiVersion: v1
+kind: Namespace
+metadata:
+  name: bookinfo
+---
+apiVersion: v1
 kind: Service
 metadata:
   name: details
